@@ -16,23 +16,24 @@ class Bms:
         )
         self.cursor = self.conn.cursor(cursor=cursors.DictCursor)
         self.root = tkinter.Tk()
-        self.root.geometry('800x700')
+        self.root.geometry('700x800')
         self.root.title('图书管理系统')
     
-    def get_detail_page(self, ISBN):
+    def get_insert(self, ISBN):
         self.bro = webdriver.Firefox(executable_path='D:\python39\geckodriver.exe')
         self.bro.get(url='http://opac.nlc.cn/F/B2LYQVUJH7V1LX1Q879MVTBI6FSA3XR8QTFMLLTCE1I6DSNA8G-84640?func=file&file_name=login-session')
-        isbn_option = self.bro.find_element_by_xpath('/html/body/div[4]/form/div[1]/table//tr/td[1]/span[2]/select/option[16]')
+        isbn_option = self.bro.find_element_by_xpath('/html/body/div[4]/form/div[1]/table/tbdoy/tr/td[1]/span[2]/select/option[16]')
         isbn_option.click()
         isbn_research = self.bro.find_element_by_xpath('//*[@id="reqterm"]')
         isbn_research.send_keys(ISBN)
         isbn_click = self.bro.find_element_by_xpath('/html/body/div[4]/form/div[2]/input')
         isbn_click.click()
-        self.author = self.bro.find_element_by_xpath('/html/body/div[6]/table[2]//tr/td/div[3]/table//tr[13]/td[2]/a').getText()
-        self.publishtime = self.bro.find_element_by_xpath('/html/body/div[6]/table[2]//tr/td/div[3]/table//tr[5]/td[2]/a').getText()
+        self.author = self.bro.find_element_by_xpath('/html/body/div[6]/table[2]/tbody/tr/td/div[3]/table//tr[13]/td[2]/a').getText()
+        self.publishtime = self.bro.find_element_by_xpath('/html/body/div[6]/table[2]/tbody/tr/td/div[3]/table//tr[5]/td[2]/a').getText()
         self.publishtime = self.publishtime.split(',')[-1]
-        self.type = self.bro.find_element_by_xpath('/html/body/div[6]/table[2]//tr/td/div[3]/table//tr[11]/td[2]/a').getText()
+        self.type = self.bro.find_element_by_xpath('/html/body/div[6]/table[2]/tbody/tr/td/div[3]/table//tr[11]/td[2]/a').getText()
         self.type = self.type.split('--')[1]
+        self.bro.quit()
         number = 1
         try:
             self.cursor.execute(u'select bookName from booklist where ISBN="%s"'%str(ISBN))
@@ -59,22 +60,23 @@ class Bms:
                 self.conn.rollback()
 
     def book_insert(self):
-        self.root.quit()
-        self.root1 = Frame(self.root)
+        self.root1 = tkinter.Tk()
+        self.root1.title('录入书籍')
+        self.root1.geometry('700x800')
         ISBN_name = tkinter.Label(self.root1, text='ISBN')
-        ISBN_name.pack(side=tkinter.LEFT)
+        ISBN_name.grid(row=0, column=0)
         ISBN_entry = tkinter.Entry(self.root1)
-        ISBN_entry.pack(side=tkinter.RIGHT)
+        ISBN_entry.grid(row=0, column=1)
         Title_name = tkinter.Label(self.root1, text='Title')
-        Title_name.pack(side=tkinter.LEFT)
+        Title_name.grid(row=1, column=0)
         Title_entry = tkinter.Entry(self.root1)
-        Title_entry.pack(side=tkinter.RIGHT)
-        self.ISBN = self.ISBN_entry.get()
-        self.Title = self.Title_entry.get()
+        Title_entry.grid(row=1, column=1)
+        self.ISBN = ISBN_entry.get()
+        self.Title = Title_entry.get()
         self.insert_exit_Button = tkinter.Button(self.root1, text='退出', command=self.exit_insert)
-        self.insert_exit_Button.pack(side=tkinter.LEFT)
-        self.insertButton = tkinter.Button(self.root1, text='录入', command=self.get_detail_page(self.ISBN))
-        self.insertButton.pack(side=tkinter.RIGHT)
+        self.insert_exit_Button.grid(row=2, column=0)
+        self.insertButton = tkinter.Button(self.root1, text='录入', command=self.get_insert(self.ISBN))
+        self.insertButton.grid(row=2, column=1)
         self.root1.mainloop()
     
     def exit_insert(self):
@@ -103,17 +105,17 @@ class Bms:
             self.conn.rollback()
     
     def book_select(self):
-        self.root.quit()
-        self.root2 = tkinter.Frame(self.root)
+        self.root2 = tkinter.Tk()
+        self.root2.title('查询书籍')
         ISBN_name = tkinter.Label(self.root2, text='ISBN')
-        ISBN_name.pack(side=tkinter.LEFT)
+        ISBN_name.grid(row=0, column=0)
         ISBN_entry = tkinter.Entry(self.root2)
-        ISBN_entry.pack(side=tkinter.RIGHT)
+        ISBN_entry.grid(row=0, column=1)
         self.isbn = ISBN_entry.get()
         self.select_exit_Button = tkinter.Button(self.root2, text='退出', command=self.exit_select())
-        self.select_exit_Button.pack(side=tkinter.LEFT)
+        self.select_exit_Button.grid(row=1, column=0)
         self.selectbutton = tkinter.Button(self.root2, text='查询', command=self.get_select(self.isbn))
-        self.selectbutton.pack(side=tkinter.RIGHT)
+        self.selectbutton.grid(row=1, column=1)
         self.root2.mainloop()
     
     def exit_select(self):
@@ -125,9 +127,9 @@ class Bms:
         selectButton.pack(side=tkinter.LEFT)
         insertButton = tkinter.Button(self.root, text='录入', command=self.book_insert)
         insertButton.pack(side=tkinter.RIGHT)
+        self.root.quit()
         self.root.mainloop()
 
 if __name__ == '__main__':
     bms = Bms()
     bms.bms_in()
-# TODO重构代码
