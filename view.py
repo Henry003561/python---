@@ -19,35 +19,37 @@ class Bms:
         self.root.geometry('700x800')
         self.root.title('图书管理系统')
     
-    def get_insert(self, ISBN):
+    def get_insert(self):
         self.bro = webdriver.Firefox(executable_path='D:\python39\geckodriver.exe')
         self.bro.get(url='http://opac.nlc.cn/F/B2LYQVUJH7V1LX1Q879MVTBI6FSA3XR8QTFMLLTCE1I6DSNA8G-84640?func=file&file_name=login-session')
-        isbn_option = self.bro.find_element_by_xpath('/html/body/div[4]/form/div[1]/table/tbdoy/tr/td[1]/span[2]/select/option[16]')
+        char_option = self.bro.find_element_by_xpath('//*[@id="find_code"]')
+        char_option.click()
+        isbn_option = self.bro.find_element_by_xpath('/html/body/div[4]/form/div[1]/table/tbody/tr/td[1]/span[2]/select/option[16]')
         isbn_option.click()
         isbn_research = self.bro.find_element_by_xpath('//*[@id="reqterm"]')
-        isbn_research.send_keys(ISBN)
+        isbn_research.send_keys(self.ISBN)
         isbn_click = self.bro.find_element_by_xpath('/html/body/div[4]/form/div[2]/input')
         isbn_click.click()
-        self.author = self.bro.find_element_by_xpath('/html/body/div[6]/table[2]/tbody/tr/td/div[3]/table//tr[13]/td[2]/a').getText()
-        self.publishtime = self.bro.find_element_by_xpath('/html/body/div[6]/table[2]/tbody/tr/td/div[3]/table//tr[5]/td[2]/a').getText()
+        self.author = self.bro.find_element_by_xpath('/html/body/div[6]/table[2]/tr/td/div[3]/table/tr[13]/td[2]/a')
+        self.author = self.author.text
+        self.publishtime = self.bro.find_element_by_xpath('/html/body/div[6]/table[2]/tr/td/div[3]/table/tr[5]/td[2]/a').text
         self.publishtime = self.publishtime.split(',')[-1]
-        self.type = self.bro.find_element_by_xpath('/html/body/div[6]/table[2]/tbody/tr/td/div[3]/table//tr[11]/td[2]/a').getText()
-        self.type = self.type.split('--')[1]
+        self.type = self.bro.find_element_by_xpath('/html/body/div[6]/table[2]/tr/td/div[3]/table/tr[11]/td[2]/a').text
         self.bro.quit()
         number = 1
         try:
-            self.cursor.execute(u'select bookName from booklist where ISBN="%s"'%str(ISBN))
+            self.cursor.execute(u'select bookName from booklist where ISBN="%s"'%str(self.ISBN))
             bookName = self.cursor.fetchall()
             bookName = bookName[0][0]
         except Exception as e:
             self.conn.rollback()
         if self.Title == bookName:
             try:
-                self.cursor.execute(u'select number from booklist where ISBN="%s"'%str(ISBN))
+                self.cursor.execute(u'select number from booklist where ISBN="%s"'%str(self.ISBN))
                 Number = self.cursor.fetchall()
                 Number = Number[0][0]
                 number = Number+number
-                self.cursor.execute(u'update booklist set number=%d where ISBN="%s"'%(number, str(ISBN)))
+                self.cursor.execute(u'update booklist set number=%d where ISBN="%s"'%(number, str(self.ISBN)))
                 self.conn.commit()
             except Exception as e:
                 self.conn.rollback()
@@ -75,7 +77,7 @@ class Bms:
         self.Title = Title_entry.get()
         self.insert_exit_Button = tkinter.Button(self.root1, text='退出', command=self.exit_insert)
         self.insert_exit_Button.grid(row=2, column=0)
-        self.insertButton = tkinter.Button(self.root1, text='录入', command=self.get_insert(self.ISBN))
+        self.insertButton = tkinter.Button(self.root1, text='录入', command=self.get_insert)
         self.insertButton.grid(row=2, column=1)
         self.root1.mainloop()
     
