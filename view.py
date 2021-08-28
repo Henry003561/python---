@@ -2,7 +2,7 @@ import pymysql
 import tkinter
 from pymysql import cursors
 from selenium import webdriver
-from tkinter import Frame, ttk
+from tkinter import ttk,Frame
 
 class Bms:
     def __init__(self):
@@ -22,15 +22,13 @@ class Bms:
     def get_insert(self):
         self.bro = webdriver.Firefox(executable_path='D:\python39\geckodriver.exe')
         self.bro.get(url='http://opac.nlc.cn/F/B2LYQVUJH7V1LX1Q879MVTBI6FSA3XR8QTFMLLTCE1I6DSNA8G-84640?func=file&file_name=login-session')
-        char_option = self.bro.find_element_by_xpath('//*[@id="find_code"]')
-        char_option.click()
         isbn_option = self.bro.find_element_by_xpath('/html/body/div[4]/form/div[1]/table/tbody/tr/td[1]/span[2]/select/option[16]')
         isbn_option.click()
         isbn_research = self.bro.find_element_by_xpath('//*[@id="reqterm"]')
         isbn_research.send_keys(self.ISBN)
         isbn_click = self.bro.find_element_by_xpath('/html/body/div[4]/form/div[2]/input')
         isbn_click.click()
-        self.author = self.bro.find_element_by_xpath('/html/body/div[6]/table[2]/tr/td/div[3]/table/tr[13]/td[2]/a')
+        self.author = self.bro.find_element_by_xpath()
         self.author = self.author.text
         self.publishtime = self.bro.find_element_by_xpath('/html/body/div[6]/table[2]/tr/td/div[3]/table/tr[5]/td[2]/a').text
         self.publishtime = self.publishtime.split(',')[-1]
