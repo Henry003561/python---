@@ -151,8 +151,8 @@ class Bms:
         passord_entry = tkinter.Entry(self.root3)
         Passord_label.grid(row=1, column=1)
         password = passord_entry.get()
-        setup_Button = tkinter.Button(self.root3, text='注册')
-        setup_Button.grid(row=2, column=0)
+        login_exit_Button = tkinter.Button(self.root3, text='退出', command=self.login_exit)
+        login_exit_Button.grid(row=2, column=0)
 
         def login_setting(username, password):
             try:
@@ -174,6 +174,8 @@ class Bms:
                 elif username == userName:
                     if password == passWord:
                         messagebox.showinfo(title='提示', message='登录成功')
+                        self.book_select()
+                        self.root3.quit()
                         break
                     else:
                         messagebox.showwarning(title='错误', message='用户名密码错误')
@@ -183,10 +185,16 @@ class Bms:
         login_Button = tkinter.Button(self.root3, text='登录', command=login_setting(username, password))
         login_Button.grid(row=2,column=1)
         self.root3.mainloop()
-
+    
+    def bms_in(self):
+        self.root5 = tkinter.Tk()
+        login_Button = tkinter.Button(self.root5, text='登录')
+        setout_Button = tkinter.Button(self.root5, text='注册')
+        self.root5.quit()
+        self.root5.mainloop()
     def exit_login(self):
         self.root3.quit()
-        # TODO设计开始页面
+        self.bms_in()
     def setUp(self):
         self.root4 = tkinter.Tk()
         username_Label = tkinter.Label(self.root4, text='用户名')
@@ -222,6 +230,7 @@ class Bms:
                 try:
                     self.cursor.execute(u'insert into userlist values("%s","%s","%s","%s")'%(username, password, sex, unit))
                     self.conn.commit()
+                    self.exit_setup()
                 except Exception as e:
                     self.conn.rollback()
         setup_Button = tkinter.Button(self.root4, text='注册', command=setup_setting(username,password, sex, unit))
@@ -232,4 +241,4 @@ class Bms:
     
     def exit_setup(self):
         self.root4.quit()
-
+        self.bms_in()
