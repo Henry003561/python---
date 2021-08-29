@@ -16,10 +16,8 @@ class Bms:
         database='bms1',
         charset='utf8'
         )
-        self.cursor = self.conn.cursor(cursor=cursors.DictCursor)
-        self.root = tkinter.Tk()
-        self.root.geometry('700x800')
-        self.root.title('图书管理系统')
+        self.cursor = self.conn.cursor(cursor=cursors.DictCursor) 
+        
     
     def get_insert(self):
         option = FirefoxProfile()
@@ -132,6 +130,8 @@ class Bms:
         self.bms_in()
     
     def adimit_bms_in(self):
+        self.root = tkinter.Tk()
+        self.root.title('管理员界面')
         selectButton = tkinter.Button(self.root, text='查询', command=self.book_select)
         selectButton.pack(side=tkinter.LEFT)
         insertButton = tkinter.Button(self.root, text='录入', command=self.book_insert)
@@ -141,22 +141,25 @@ class Bms:
 
     def login(self):
         self.root3 = tkinter.Tk()
+        self.root3.title('登录操作')
         username_Label = tkinter.Label(self.root3, text="username")
         username_Label.grid(row=0, column=0)
         username_Entry = tkinter.Entry(self.root3)
         username_Entry.grid(row=0,column=1)
         username = username_Entry.get()
+        self.username = username
         Passord_label = tkinter.Label(self.root3, text='password')
         Passord_label.grid(row=1, column=0)
         passord_entry = tkinter.Entry(self.root3)
-        Passord_label.grid(row=1, column=1)
+        passord_entry.grid(row=1, column=1)
         password = passord_entry.get()
-        login_exit_Button = tkinter.Button(self.root3, text='退出', command=self.login_exit)
+        self.password = password
+        login_exit_Button = tkinter.Button(self.root3, text='退出', command=self.exit_login)
         login_exit_Button.grid(row=2, column=0)
 
-        def login_setting(username, password):
+        def login_setting():
             try:
-                self.cursor.execute(u'select username, password from userlist where username="%s"'%username)
+                self.cursor.execute(u'select username, password from userlist where username="%s"'%self.username)
                 results = self.cursor.fetchall()
                 userName = results[0][0]
                 passWord = results[0][1]
@@ -164,15 +167,15 @@ class Bms:
                 self.conn.rollback()
             x = 0
             while x < 3:
-                if username == 'root':
+                if self.username == 'root':
                     if password == 'hwh003561':
                         messagebox.showinfo(title='提示', message='登录成功')
                         self.adimit_bms_in()
                         break
                     else:
                         messagebox.showwarning(title='错误', message="用户名密码错误")
-                elif username == userName:
-                    if password == passWord:
+                elif self.username == userName or self.username==None:
+                    if self.password == passWord:
                         messagebox.showinfo(title='提示', message='登录成功')
                         self.book_select()
                         self.root3.quit()
@@ -182,14 +185,17 @@ class Bms:
                 x += 1
                 if x == 3:
                     self.exit_login()
-        login_Button = tkinter.Button(self.root3, text='登录', command=login_setting(username, password))
+        login_Button = tkinter.Button(self.root3, text='登录', command=login_setting)
         login_Button.grid(row=2,column=1)
         self.root3.mainloop()
     
     def bms_in(self):
         self.root5 = tkinter.Tk()
-        login_Button = tkinter.Button(self.root5, text='登录')
-        setout_Button = tkinter.Button(self.root5, text='注册')
+        self.root5.title('图书管理系统')
+        login_Button = tkinter.Button(self.root5, text='登录', command=self.login)
+        login_Button.grid(row=0, column=0)
+        setout_Button = tkinter.Button(self.root5, text='注册', command=self.setUp)
+        setout_Button.grid(row=0, column=1)
         self.root5.quit()
         self.root5.mainloop()
     def exit_login(self):
@@ -197,6 +203,7 @@ class Bms:
         self.bms_in()
     def setUp(self):
         self.root4 = tkinter.Tk()
+        self.root4.title('注册操作')
         username_Label = tkinter.Label(self.root4, text='用户名')
         username_Label.grid(row=0, column=0)
         username_Entry = tkinter.Entry(self.root4)
@@ -209,6 +216,7 @@ class Bms:
         unit_Label.grid(row=2,column=0)
         unit_Entry = tkinter.Entry(self.root4)
         unit_Entry.grid(row=2, column=1)
+        unit = unit_Entry.get()
         sex_Label = tkinter.Label(self.root4, text='性别')
         sex_Label.grid(row=3, column=0)
         sex_Entry = tkinter.Entry(self.root4)
@@ -216,15 +224,19 @@ class Bms:
         sex = sex_Entry.get()
         username = username_Entry.get()
         password = password_Entry.get()
+        self.username = username
+        self.password = password
+        self.sex = sex
+        self.unit = unit
         unit = unit_Entry.get()
-        def setup_setting(username,password,sex,unit):
+        def setup_setting():
             try:
-                self.cursor.execute(u'select username from userlist where username="%s"'%username)
+                self.cursor.execute(u'select username from userlist where username="%s"'%self.username)
                 userName = self.cursor.fetchall()
                 userName = userName[0][0]
             except Exception as e:
                 self.conn.rollback()
-            if username == userName:
+            if self.username == userName:
                 messagebox.showinfo(title='错误', message='该用户已经存在')
             else:
                 try:
@@ -233,7 +245,7 @@ class Bms:
                     self.exit_setup()
                 except Exception as e:
                     self.conn.rollback()
-        setup_Button = tkinter.Button(self.root4, text='注册', command=setup_setting(username,password, sex, unit))
+        setup_Button = tkinter.Button(self.root4, text='注册', command=setup_setting)
         setup_Button.grid(row=4, column=0)
         exit_button = tkinter.Button(self.root4, text='退出')
         exit_button.grid(row=4, column=1)
@@ -242,3 +254,7 @@ class Bms:
     def exit_setup(self):
         self.root4.quit()
         self.bms_in()
+
+if __name__ == '__main__':
+    bms = Bms()
+    bms.bms_in()
