@@ -34,9 +34,9 @@ class Bms:
         isbn_click.click()
         self.author = self.bro.find_element_by_xpath()
         self.author = self.author.text
-        self.publishtime = self.bro.find_element_by_xpath('/html/body/div[6]/table[2]/tr/td/div[3]/table/tr[5]/td[2]/a').text
+        self.publishtime = self.bro.find_element_by_xpath('/html/body/div[6]/table[2]/tr/td/div[3]/table/tr[5]/td[2]/a').gettext()
         self.publishtime = self.publishtime.split(',')[-1]
-        self.type = self.bro.find_element_by_xpath('/html/body/div[6]/table[2]/tr/td/div[3]/table/tr[11]/td[2]/a').text
+        self.type = self.bro.find_element_by_xpath('/html/body/div[6]/table[2]/tr/td/div[3]/table/tr[11]/td[2]/a').gettext()
         self.bro.quit()
         number = 1
         try:
